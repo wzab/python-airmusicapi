@@ -2,6 +2,7 @@
 Test file to check functionality in Airmusic API towards Lenco DIR150BK.
 """
 
+import sys
 
 import json
 import logging
@@ -9,7 +10,8 @@ import time
 from airmusicapi import airmusic
 
 
-IPADDR = '192.168.2.147'  # Change this to the IP-address or hostname of your device.
+#IPADDR = '192.168.2.147'  # Change this to the IP-address or hostname of your device.
+IPADDR = sys.argv[1]  # Change this to the IP-address or hostname of your device.
 TIMEOUT = 5  # in seconds. In most cases 1 second is sufficient.
 
 
@@ -56,7 +58,7 @@ def main():
     # Create an API instance and setup initial communication with the device.
     am_obj = airmusic(IPADDR, TIMEOUT)
     am_obj.log_level = logging.DEBUG
-    am_obj.init(language="en")
+    am_obj.init(language="pl")
 
     # Show device information.
     print('Device Name: %s' % am_obj.friendly_name)
@@ -68,9 +70,10 @@ def main():
 
     # Show the content of the hotkeylist.
     hotkeylist = am_obj.get_hotkeylist()
-    print("Hotkeylist: {} out of {}:".format(hotkeylist['item_total'], hotkeylist['item_return']))
-    for itm in hotkeylist['item']:
-        print("  {}, {}, {}".format(itm['id'], itm['name'], itm['status']))
+    if hotkeylist:
+        print("Hotkeylist: {} out of {}:".format(hotkeylist['item_total'], hotkeylist['item_return']))
+        for itm in hotkeylist['item']:
+            print("  {}, {}, {}".format(itm['id'], itm['name'], itm['status']))
 
     print("Verify navigation through menus to reach a station to play.")
     print_list(am_obj.get_menu(menu_id=1))
@@ -81,9 +84,9 @@ def main():
     am_obj.play_station('75_7')
     print_songinfo(am_obj)
 
-    print("Going to play the radio station at hotkey 1.")
-    am_obj.play_hotkey(1)
-    print_songinfo(am_obj)
+#    print("Going to play the radio station at hotkey 1.")
+#    am_obj.play_hotkey(1)
+#    print_songinfo(am_obj)
 
 
 # ***************************************************************************

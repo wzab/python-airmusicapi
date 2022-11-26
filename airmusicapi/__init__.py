@@ -85,7 +85,7 @@ class airmusic(object):
         Finalise the communication with the device by closing the session.
         """
         self.logger = None  # No logging possible at termination.
-        self.stop()
+        # self.stop() # Do I really want to stop playing?
         self.send_cmd('exit')
 
     def __repr__(self):
@@ -247,7 +247,7 @@ class airmusic(object):
     # Public methods
     # ========================================================================
 
-    def init(self, language='en'):
+    def init(self, language='pl'):
         """!
         Initialize session and select the communication language.
         The GUI on the device will show messages in the selected language.
@@ -422,7 +422,9 @@ class airmusic(object):
         if 'menu' in resp:
             return resp['menu']
         if 'result' in resp:
-            return dict(result=resp['result']['rt'])
+            print(resp)
+            if 'rt' in resp:
+                return dict(result=resp['result']['rt'])
         return None
 
     def enter_menu(self, menu_id):
