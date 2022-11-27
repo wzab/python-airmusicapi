@@ -1,0 +1,4 @@
+*~
+__pycache__/
+*.log
+airmusicapi/__pycache__/

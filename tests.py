@@ -11,8 +11,138 @@ from airmusicapi import airmusic
 
 
 #IPADDR = '192.168.2.147'  # Change this to the IP-address or hostname of your device.
-IPADDR = sys.argv[1]  # Change this to the IP-address or hostname of your device.
+#IPADDR = sys.argv[1]  # Change this to the IP-address or hostname of your device.
+IPADDR = 'azradio.lan'
 TIMEOUT = 5  # in seconds. In most cases 1 second is sufficient.
+
+
+def api_init(ip, timeout):
+    am = airmusic(ip, timeout)
+    am.log_level = logging.DEBUG
+    am.init(language="pl")
+    return am
+
+
+# Always pass 'am' as kwarg! Dont use positional args
+def am_api(f):
+    def inner(*args, **kwargs):
+        am = kwargs.get('am',None)
+        if not am:
+            kwargs['am'] = api_init(IPADDR, TIMEOUT)
+        return f(*args, **kwargs)
+    return inner
+
+
+def get_item(resp):
+    try:
+        item = resp['item']
+    except KeyError:
+        item = []
+        logging.ERROR(f"Received incomplete response: {resp}")
+    
+    if ((len(item) != int(resp['item_return'])) 
+        or (len(item) != int(resp['item_total']))):
+        logging.WARNING(f"Resp len: {len(item)}, "
+                        f"item return: {resp['item_return']}, "
+                        f"item total: {resp['item_total']}")
+    
+    # If list is not empty and has some missing fields
+    if item and not all([('id' in f) and ('name' in f) for f in item]):
+        logging.WARNING("Some items have missing id/name fields! \n"
+                       f"{[f for f in item if ('id' not in f) or ('name' not in f)]}")
+    
+    return item
+
+
+@am_api
+def get_favs_raw(am):
+    am.enter_menu(75)
+    favs = am.get_menu(menu_id=75)
+    
+    return favs
+
+
+@am_api
+def discover_menus(am):
+    def enter_and_get_nexts(am, i):
+        am.enter_menu(menu_id=i)
+        return am.get_menu(menu_id=i)
+    
+    def enter_nexts(am, node):
+        resp = enter_and_get_nexts(am, node)
+        if 'item' not in resp:
+            return
+        
+        ret = []
+        for i in item:
+            ret.append(i)
+            ret.append(enter_nexts(am, i))
+        return ret
+    
+    enter_and_get_nexts(am, 1)
+    
+    # Recursively walk through the tree
+    # Not tested!
+    raise NotImplementedError
+
+
+@am_api
+def get_vol(am):
+    return am.get_volume()
+
+@am_api
+def set_vol(am, v):
+    if (v > 30) or (v < 0):
+        logging.WARNING("Attempt to set  volume outside of 0-30 range!")
+    _v = min(30, max(0, v))
+    resp = am.set_volume(_v)
+    return resp
+
+
+@am_api
+def get_mute(am):
+    return am.get_mute()
+
+@am_api
+def set_mute(am, mute):
+    return am.set_mute(mute)
+
+
+def get_favs(am=None):
+    favs_raw = get_favs_raw(am=am)
+    if not favs_raw:
+        return []
+        
+    favs = get_item(favs_raw)
+    
+    return favs
+
+
+@am_api
+def search_stations(am, name):
+    """!
+    Return list of stations with substring in name
+    @param am optional air_musicapi handle
+    @param name substring with part of station name to look for
+    """
+    logging.DEBUG(f"Searching: name = {name}")
+    if not name: # if empty
+        return []
+    resp = am.search_station(name)
+    logging.DEBUG(f"Response: {resp}")
+    try:
+        menu_id = resp['id']
+    except KeyError:
+        logging.ERROR(f"Response has no 'id' field! Resp: {resp}")
+        raise
+    
+    am.enter_menu(menu_id=menu_id)
+    resp = am.get_menu(menu_id=menu_id)
+    # Nothing found: RESP = {'result': '100'}
+    if 'result' in resp:
+        return []
+    
+    return get_item(resp)
 
 
 def print_list(list_result):
@@ -56,9 +186,7 @@ def main():
     Main part of the code. Checks some parts of the API against the Lenco DIR150BK radio.
     """
     # Create an API instance and setup initial communication with the device.
-    am_obj = airmusic(IPADDR, TIMEOUT)
-    am_obj.log_level = logging.DEBUG
-    am_obj.init(language="pl")
+    am_obj = api_init(IPADDR, TIMEOUT)
 
     # Show device information.
     print('Device Name: %s' % am_obj.friendly_name)
