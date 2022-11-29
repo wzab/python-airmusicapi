@@ -38,17 +38,17 @@ def get_item(resp):
         item = resp['item']
     except KeyError:
         item = []
-        logging.ERROR(f"Received incomplete response: {resp}")
+        logging.error(f"Received incomplete response: {resp}")
     
     if ((len(item) != int(resp['item_return'])) 
         or (len(item) != int(resp['item_total']))):
-        logging.WARNING(f"Resp len: {len(item)}, "
+        logging.warning(f"Resp len: {len(item)}, "
                         f"item return: {resp['item_return']}, "
                         f"item total: {resp['item_total']}")
     
     # If list is not empty and has some missing fields
     if item and not all([('id' in f) and ('name' in f) for f in item]):
-        logging.WARNING("Some items have missing id/name fields! \n"
+        logging.warning("Some items have missing id/name fields! \n"
                        f"{[f for f in item if ('id' not in f) or ('name' not in f)]}")
     
     return item
@@ -93,7 +93,7 @@ def get_vol(am):
 @am_api
 def set_vol(am, v):
     if (v > 30) or (v < 0):
-        logging.WARNING("Attempt to set  volume outside of 0-30 range!")
+        logging.warning("Attempt to set  volume outside of 0-30 range!")
     _v = min(30, max(0, v))
     resp = am.set_volume(_v)
     return resp
@@ -125,15 +125,15 @@ def search_stations(am, name):
     @param am optional air_musicapi handle
     @param name substring with part of station name to look for
     """
-    logging.DEBUG(f"Searching: name = {name}")
+    logging.debug(f"Searching: name = {name}")
     if not name: # if empty
         return []
     resp = am.search_station(name)
-    logging.DEBUG(f"Response: {resp}")
+    logging.debug(f"Response: {resp}")
     try:
         menu_id = resp['id']
     except KeyError:
-        logging.ERROR(f"Response has no 'id' field! Resp: {resp}")
+        logging.error(f"Response has no 'id' field! Resp: {resp}")
         raise
     
     am.enter_menu(menu_id=menu_id)

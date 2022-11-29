@@ -16,7 +16,7 @@ def register_event(e):
     global registered_events
     
     if e.__name__ in registered_events:
-        logging.WARNING(f"Handler already registered: {e.__name__}")
+        logging.warning(f"Handler already registered: {e.__name__}")
     registered_events[e.__name__] = e
     
     return e
@@ -24,7 +24,7 @@ def register_event(e):
 
 def fav_to_line(f):
     if not ('id' in f) and not ('name' in f):
-        logging.ERROR("Can't create fav line: {f}")
+        logging.error("Can't create fav line: {f}")
         return [sg.T("Error")]
     
     line = [sg.Button("PLAY", key=('play', f['id']), enable_events=True)]
@@ -35,7 +35,7 @@ def fav_to_line(f):
 
 def search_res_line(s):
     if not ('id' in s) and not ('name' in s):
-        logging.ERROR("Can't create search line: {s}")
+        logging.error("Can't create search line: {s}")
         return [sg.T("Error")]
     
     line = [sg.Button("PLAY", key=('searchplay', s['id']), enable_events=True)]
@@ -58,9 +58,7 @@ col_favs = [sg.Column(favs, scrollable=True, vertical_scroll_only=True, k='colfa
 search_line = [sg.Button('SZUKAJ', key='search', enable_events=True),
                  sg.Input('', key='search_text')]
 
-#search_results = [search_res_line(f) for s in search_stations(am=am,name="")]
-search_results = []
-search_results_col = [sg.Column(search_results, scrollable=True, vertical_scroll_only=True, k='colsearchres')]
+search_results_col = [sg.Column([], scrollable=True, vertical_scroll_only=True, k='colsearchres')]
 
 vol_lines = [sg.Button('Mute', key='mute', enable_events=True),
              sg.T('Volume: ', size=(6,1)),
@@ -110,9 +108,13 @@ def add_fav(values):
 
 @register_event
 def search(values):
-    pass
-    #search_results = [search_res_line(f) for s in search_stations(am=None,name="")]
-    # window.Element(?).Update(?) ???
+    search_results_raw = tests.search_stations(name=values['search_text'])
+    logging.debug(f"Search results raw: {search_results_raw}")
+    search_results = [search_res_line(s) for s in search_results_raw]
+    logging.debug(f"Search results: {search_results}")
+    window.extend_layout(window['colsearchres'], search_results)
+    window.refresh()
+    window['colsearchres'].contents_changed()
 
 @register_event
 def search_play(values):
@@ -133,7 +135,5 @@ while True:
     
     if event is None or event == 'Exit':
         break
-    for re in registered_events:
-        if event == re:
-            registered_events[re](values)
-            break
+    
+    registered_events[event](values)
