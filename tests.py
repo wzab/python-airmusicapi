@@ -148,6 +148,13 @@ def search_stations(am, name):
     return ret
 
 
+@am_api
+def play_station(am, station_id):
+    """!
+    
+    """
+    return am.play_station(station_id)
+
 def print_list(list_result):
     """!
     Show the response from a list command in pretty print format.

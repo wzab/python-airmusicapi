@@ -97,7 +97,8 @@ def _play():
 
 @register_event
 def play(values):
-    pass
+    logging.debug(f"Play! Values: {values}")
+    tests.play_station(station_id=values['event_key_args'])
 
 @register_event
 def del_fav(values):
@@ -136,13 +137,22 @@ def mute(values):
 def vol_set(values):
     is_muted = False
     tests.set_vol(v=values['vol_set'])
-
+    
 
 while True:
-    event, values = window.Read()
-    logging.debug((event, values))
+    event_tup, values = window.Read()
+    logging.debug((event_tup, values))
+    
+    if isinstance(event_tup, tuple):
+        event, event_key_args = event_tup
+    else:
+        event = event_tup
+        event_key_args = ""
     
     if event is None or event == 'Exit':
         break
     
+    values['event_key_args'] = event_key_args
+    
+    logging.debug((event, values))
     registered_events[event](values)
