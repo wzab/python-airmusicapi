@@ -60,6 +60,7 @@ search_line = [sg.Button('SZUKAJ', key='search', enable_events=True),
 
 search_results_col = [sg.Column([], scrollable=True, vertical_scroll_only=True, k='colsearchres')]
 
+is_muted = False
 vol_lines = [sg.Button('Mute', key='mute', enable_events=True),
              sg.T('Volume: ', size=(6,1)),
              #sg.Button('SET', key='vol_set', enable_events=True),
@@ -122,11 +123,19 @@ def search_play(values):
 
 @register_event
 def mute(values):
-    pass
+    global is_muted
+    
+    if not is_muted:
+        tests.set_vol(v=0)
+        is_muted = True
+    else:
+        is_muted = False
+        vol_set(values)
 
 @register_event
 def vol_set(values):
-    pass
+    is_muted = False
+    tests.set_vol(v=values['vol_set'])
 
 
 while True:
