@@ -142,7 +142,10 @@ def search_stations(am, name):
     if 'result' in resp:
         return []
     
-    return get_item(resp)
+    ret = get_item(resp)
+    if not isinstance(ret, list):
+        ret = [ret]
+    return ret
 
 
 def print_list(list_result):
