@@ -117,6 +117,17 @@ def get_favs(am=None):
     
     return favs
 
+@am_api
+def set_fav(am, station_id):
+    favs = get_favs()
+    pos = len(favs)
+    
+    return am.set_favourite(station_id, pos)
+
+@am_api
+def del_fav(am, station_id):
+    raise NotImplementedError
+
 
 @am_api
 def search_stations(am, name):

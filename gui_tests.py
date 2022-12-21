@@ -44,17 +44,22 @@ def search_res_line(s):
     line += [sg.T(s['name'])]
     return line
 
+def get_favs():
+    favs = tests.get_favs(am)
+    try:
+        favs = [fav_to_line(f) for f in favs]
+    except KeyError:
+        favs = [sg.T('BRAK')]
+    
+    return favs
+
 # Init
 am = tests.api_init(IPADDR, TIMEOUT)
-favs = tests.get_favs(am)
+favs = get_favs()
 
 # Window init
-try:
-    favs = [fav_to_line(f) for f in favs]
-except KeyError:
-    favs = [sg.T('BRAK')]
 col_favs = [sg.Column(favs, scrollable=True, vertical_scroll_only=True, 
-                      expand_x=True, k='colfavs')]
+                      expand_x=True, expand_y=True, k='colfavs')]
 
 search_line = [sg.Button('SZUKAJ', key='search', enable_events=True, expand_x=True),
                  sg.Input('', key='search_text')]
@@ -102,23 +107,37 @@ def play(values):
     logging.debug(f"Play! Values: {values}")
     _play(values)
 
+def update_col(key, new_elements):
+    global window
+    # FIXME Unable to clear the Column Element before adding new items here!
+    window.extend_layout(window[key], new_elements)
+    window[key].contents_changed()
+    window.refresh()
+
+def refresh_favs():
+    favs = get_favs()
+    update_col('colfavs', favs)
+
 @register_event
 def del_fav(values):
     pass
 
 @register_event
 def add_fav(values):
-    pass
+    logging.debug(f"Add fav! Values: {values}")
+    # FIXME Station isn't favved
+    tests.set_fav(station_id=values['event_key_args'])
+    refresh_favs()
 
 @register_event
 def search(values):
-    search_results_raw = tests.search_stations(name=values['search_text'])
-    logging.debug(f"Search results raw: {search_results_raw}")
-    search_results = [search_res_line(s) for s in search_results_raw]
+    search_results = []
+    if values['search_text']:
+        search_results_raw = tests.search_stations(name=values['search_text'])
+        logging.debug(f"Search results raw: {search_results_raw}")
+        search_results = [search_res_line(s) for s in search_results_raw]
     logging.debug(f"Search results: {search_results}")
-    window.extend_layout(window['colsearchres'], search_results)
-    window['colsearchres'].contents_changed()
-    window.refresh()
+    update_col('colsearchres', search_results)
 
 @register_event
 def search_play(values):
@@ -149,6 +168,7 @@ while True:
     if event is None or event == 'Exit':
         break
     
+    # Copy station id from part of button's key tuple to event key args
     values['event_key_args'] = event_key_args
     
     logging.debug((event, values))
