@@ -126,6 +126,7 @@ def set_fav(am, station_id):
 
 @am_api
 def del_fav(am, station_id):
+    # https://github.com/RobinMeis/AirMusic/tree/master/docs
     raise NotImplementedError
 
 
