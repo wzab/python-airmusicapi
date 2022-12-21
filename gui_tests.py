@@ -38,7 +38,7 @@ def search_res_line(s):
         logging.error("Can't create search line: {s}")
         return [sg.T("Error")]
     
-    line = [sg.Button("PLAY", key=('searchplay', s['id']), enable_events=True)]
+    line = [sg.Button("PLAY", key=('search_play', s['id']), enable_events=True)]
     line += [sg.Button("+", key=('add_fav', s['id']), enable_events=True,
                button_color=('white', 'springgreen4'))]
     line += [sg.T(s['name'])]
@@ -53,16 +53,17 @@ try:
     favs = [fav_to_line(f) for f in favs]
 except KeyError:
     favs = [sg.T('BRAK')]
-col_favs = [sg.Column(favs, scrollable=True, vertical_scroll_only=True, k='colfavs')]
+col_favs = [sg.Column(favs, scrollable=True, vertical_scroll_only=True, 
+                      expand_x=True, k='colfavs')]
 
-search_line = [sg.Button('SZUKAJ', key='search', enable_events=True),
+search_line = [sg.Button('SZUKAJ', key='search', enable_events=True, expand_x=True),
                  sg.Input('', key='search_text')]
 
-search_results_col = [sg.Column([], scrollable=True, vertical_scroll_only=True, k='colsearchres')]
+search_results_col = [sg.Column([], scrollable=True, vertical_scroll_only=True,
+                                expand_x=True, expand_y=True, k='colsearchres')]
 
-is_muted = False
-vol_lines = [sg.Button('Mute', key='mute', enable_events=True),
-             sg.T('Volume: ', size=(6,1)),
+vol_lines = [sg.Button('Wycisz', key='mute', enable_events=True),
+             sg.T('Głośność: ', size=(6,1)),
              #sg.Button('SET', key='vol_set', enable_events=True),
              sg.Slider(range=(0,30),
                        default_value=tests.get_vol(am=am),
@@ -72,6 +73,7 @@ vol_lines = [sg.Button('Mute', key='mute', enable_events=True),
                        key='vol_set',
                        disable_number_display=False,
                        enable_events=True,
+                       expand_x=True,
                        tooltip='Głośność'),
             ]
 
@@ -92,13 +94,13 @@ del(am) # Free, events will re-init it when needed
 am = None
 
 #
-def _play():
-    pass
+def _play(values):
+    tests.play_station(station_id=values['event_key_args'])
 
 @register_event
 def play(values):
     logging.debug(f"Play! Values: {values}")
-    tests.play_station(station_id=values['event_key_args'])
+    _play(values)
 
 @register_event
 def del_fav(values):
@@ -115,27 +117,22 @@ def search(values):
     search_results = [search_res_line(s) for s in search_results_raw]
     logging.debug(f"Search results: {search_results}")
     window.extend_layout(window['colsearchres'], search_results)
-    window.refresh()
     window['colsearchres'].contents_changed()
+    window.refresh()
 
 @register_event
 def search_play(values):
-    pass
+    logging.debug(f"Search_play! Values: {values}")
+    _play(values)
 
 @register_event
 def mute(values):
-    global is_muted
-    
-    if not is_muted:
-        tests.set_vol(v=0)
-        is_muted = True
-    else:
-        is_muted = False
-        vol_set(values)
+    mute = tests.get_mute()
+    # Negate the mute:
+    return tests.set_mute(mute=(not mute))
 
 @register_event
 def vol_set(values):
-    is_muted = False
     tests.set_vol(v=values['vol_set'])
     
 
