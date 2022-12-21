@@ -101,11 +101,11 @@ def set_vol(am, v):
 
 @am_api
 def get_mute(am):
-    return am.get_mute()
+    return am.mute
 
 @am_api
 def set_mute(am, mute):
-    return am.set_mute(mute)
+    am.mute = mute
 
 
 def get_favs(am=None):

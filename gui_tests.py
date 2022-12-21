@@ -63,7 +63,7 @@ search_results_col = [sg.Column([], scrollable=True, vertical_scroll_only=True,
                                 expand_x=True, expand_y=True, k='colsearchres')]
 
 vol_lines = [sg.Button('Wycisz', key='mute', enable_events=True),
-             sg.T('Głośność: ', size=(6,1)),
+             sg.T('Głośność: '),
              #sg.Button('SET', key='vol_set', enable_events=True),
              sg.Slider(range=(0,30),
                        default_value=tests.get_vol(am=am),
