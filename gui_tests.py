@@ -5,6 +5,8 @@ import types
 # FIXME RENAME! Name collides with other lib!!!
 import tests
 
+sg.theme('Dark Blue 3') 
+
 IPADDR = 'azradio.lan'
 TIMEOUT = 5
 #logging.basicConfig(level=logging.INFO)
@@ -110,6 +112,9 @@ def play(values):
 def update_col(key, new_elements):
     global window
     # FIXME Unable to clear the Column Element before adding new items here!
+    logging.debug(window[key].Rows)
+    for widget in window[key].Widget.winfo_children():
+            widget.destroy()
     window.extend_layout(window[key], new_elements)
     window[key].contents_changed()
     window.refresh()
@@ -152,6 +157,8 @@ def mute(values):
 
 @register_event
 def vol_set(values):
+    # Use window.perform_long_operation() to not to freeze GUI for the time of
+    # the call execution?
     tests.set_vol(v=values['vol_set'])
     
 
@@ -165,11 +172,14 @@ while True:
         event = event_tup
         event_key_args = ""
     
-    if event is None or event == 'Exit':
+    if event is None or event == 'Exit' or event == sg.WIN_CLOSED:
         break
     
     # Copy station id from part of button's key tuple to event key args
     values['event_key_args'] = event_key_args
     
     logging.debug((event, values))
-    registered_events[event](values)
+    try:
+        registered_events[event](values)
+    except Exception as e:
+        sg.popup_error_with_traceback('Error on event', 'Something went wrong', e)
