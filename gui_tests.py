@@ -113,8 +113,8 @@ def update_col(key, new_elements):
     global window
     # FIXME Unable to clear the Column Element before adding new items here!
     logging.debug(window[key].Rows)
-    for widget in window[key].Widget.winfo_children():
-            widget.destroy()
+    #for widget in window[key].Widget.winfo_children():
+    #        widget.destroy()
     window.extend_layout(window[key], new_elements)
     window[key].contents_changed()
     window.refresh()
