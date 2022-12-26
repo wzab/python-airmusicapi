@@ -25,9 +25,7 @@ fi
 
 source ${VENV}/bin/activate > ${LOG} 2>&1
 
-# https://stackoverflow.com/questions/23475502/update-a-virtualenv-to-match-requirements-txt
-env/bin/python -m pip freeze | grep -v -f requirements.txt - | xargs env/bin/python -m pip uninstall -y > ${LOG} 2>&1
-env/bin/python -m pip install -r requirements.txt > ${LOG} 2>&1
+pip install -r requirements.txt --upgrade
 
 # Run the app
 env/bin/python ./gui_tests.py > ${LOG} 2>&1
