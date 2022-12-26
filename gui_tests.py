@@ -30,8 +30,8 @@ def fav_to_line(f):
         return [sg.T("Error")]
     
     line = [sg.Button("PLAY", key=('play', f['id']), enable_events=True)]
-    line += [sg.Button("X", key=('del_fav', f['id']), enable_events=True,
-               button_color=('white', 'firebrick3'))]
+    #line += [sg.Button("X", key=('del_fav', f['id']), enable_events=True,
+    #           button_color=('white', 'firebrick3'))]
     line += [sg.T(f['name'])]
     return line
 
@@ -41,8 +41,8 @@ def search_res_line(s):
         return [sg.T("Error")]
     
     line = [sg.Button("PLAY", key=('search_play', s['id']), enable_events=True)]
-    line += [sg.Button("+", key=('add_fav', s['id']), enable_events=True,
-               button_color=('white', 'springgreen4'))]
+    #line += [sg.Button("+", key=('add_fav', s['id']), enable_events=True,
+    #           button_color=('white', 'springgreen4'))]
     line += [sg.T(s['name'])]
     return line
 
