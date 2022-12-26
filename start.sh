@@ -17,4 +17,4 @@ git fetch --all
 git reset --hard origin/gui_stable
 
 # Run the app
-python3 ./gui_tests.py > ${LOG}
+python3 ./gui_tests.py > ${LOG} 2>&1
