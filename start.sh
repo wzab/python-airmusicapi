@@ -25,7 +25,7 @@ fi
 
 source ${VENV}/bin/activate > ${LOG} 2>&1
 
-pip install -r requirements.txt --upgrade
+env/bin/python -m pip install -r requirements.txt --upgrade > ${LOG} 2>&1
 
 # Run the app
 env/bin/python ./gui_tests.py > ${LOG} 2>&1
