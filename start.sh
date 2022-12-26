@@ -19,7 +19,7 @@ fi
 git fetch --all > ${LOG} 2>&1 || exit 2
 git reset --hard origin/gui_stable > ${LOG} 2>&1 || exit 3
 
-if [ ! -D $VENV ] ; then
+if [ ! -d $VENV ] ; then
     python3 -m venv ${VENV} > ${LOG} 2>&1
 fi
 
