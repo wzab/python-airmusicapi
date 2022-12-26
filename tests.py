@@ -12,7 +12,7 @@ from airmusicapi import airmusic
 
 #IPADDR = '192.168.2.147'  # Change this to the IP-address or hostname of your device.
 #IPADDR = sys.argv[1]  # Change this to the IP-address or hostname of your device.
-IPADDR = 'azradio.lan'
+IPADDR = 'zmradio.lan' # TODO Place this in some shared file / module!!! FIXME
 TIMEOUT = 5  # in seconds. In most cases 1 second is sufficient.
 
 
