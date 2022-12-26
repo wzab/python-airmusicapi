@@ -8,8 +8,7 @@ TARGET="gui_stable"
 LOG=start.log
 rm -f ${LOG}
 if [[ "$BRANCH" != "$TARGET" ]]; then
-    git checkout gui_stable > ${LOG} 2>&1
-    || exit 1
+    git checkout gui_stable > ${LOG} 2>&1 || exit 1
 fi
 
 # Pull and overwrite everything local
