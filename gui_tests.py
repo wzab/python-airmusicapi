@@ -7,7 +7,7 @@ import tests
 
 sg.theme('Dark Blue 3') 
 
-IPADDR = 'azradio.lan'
+IPADDR = 'zmradio.lan'
 TIMEOUT = 5
 #logging.basicConfig(level=logging.INFO)
 logging.basicConfig(level=logging.DEBUG)
